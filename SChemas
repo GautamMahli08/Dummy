@@ -1,0 +1,86 @@
+MySQL CMD
+
+
+
+Step 1: Select database
+
+USE fleet_db;
+
+
+Step 2: Create tables
+User:
+    CREATE TABLE users (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin','fleet_manager','driver','viewer') DEFAULT 'driver',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX idx_email (email)
+) ENGINE=InnoDB;
+
+
+Vehicles:
+    CREATE TABLE vehicles (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    vehicle_number VARCHAR(20) UNIQUE NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_vehicle_number (vehicle_number)
+) ENGINE=InnoDB;
+
+
+
+Sensors:
+    CREATE TABLE sensors (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    vehicle_id BIGINT NOT NULL,
+    sensor_type ENUM('fuel','valve','gps','temperature','accelerometer') NOT NULL,
+    sensor_id VARCHAR(64) NOT NULL,
+    status ENUM('active','inactive','faulty','unknown') DEFAULT 'active',
+    installed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_vehicle_sensor (vehicle_id, sensor_type, sensor_id),
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+Telemetry:
+      CREATE TABLE telemetry (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    vehicle_id BIGINT NOT NULL,
+    fuel_level DECIMAL(5,2),
+    valve_status ENUM('open','closed','unknown'),
+    latitude DECIMAL(10,7),
+    longitude DECIMAL(10,7),
+    speed SMALLINT UNSIGNED,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    INDEX idx_vehicle_time (vehicle_id, timestamp DESC),
+    INDEX idx_timestamp (timestamp)
+) ENGINE=InnoDB;
+
+Alerts
+    CREATE TABLE alerts (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    vehicle_id BIGINT NOT NULL,
+    alert_type VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    severity ENUM('info','warning','critical','emergency') NOT NULL,
+    is_resolved BOOLEAN DEFAULT FALSE,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    INDEX idx_vehicle_alert_time (vehicle_id, timestamp DESC)
+) ENGINE=InnoDB;
+
+
+
+
+
+
+
