@@ -64,6 +64,8 @@ Telemetry:
     INDEX idx_timestamp (timestamp)
 ) ENGINE=InnoDB;
 
+
+
 Alerts
     CREATE TABLE alerts (
     id BIGINT NOT NULL AUTO_INCREMENT,
