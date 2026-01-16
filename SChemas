@@ -21,6 +21,8 @@ User:
 ) ENGINE=InnoDB;
 
 
+
+
 Vehicles:
     CREATE TABLE vehicles (
     id BIGINT NOT NULL AUTO_INCREMENT,
